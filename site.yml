@@ -1,0 +1,28 @@
+---
+
+- hosts: all  
+  become: true
+  tasks:
+  
+  - name: install updates (CentOS)
+    ansible.builtin.dnf:
+      update_cache: yes
+      update_only: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: Install updates (Ubuntu)
+    ansible.builtin.apt:
+      upgrade: dist 
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: webserver
+  become: true
+  tasks:
+
+  - name: install apache2 and php
+    ansible.builtin.package:
+      name: 
+        - "{{ apache_package }}"
+        - "{{ php_package }}"
+      state: latest
