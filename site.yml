@@ -2,15 +2,18 @@
 
 - hosts: all  
   become: true
-  tasks:
+  #these tasks should run before any other task
+  pre_tasks:
   
   - name: install updates (CentOS)
+    tags: always
     ansible.builtin.dnf:
-      update_cache: yes
       update_only: yes
+      update_cache: yes
     when: ansible_distribution == "CentOS"
 
   - name: Install updates (Ubuntu)
+    tags: always
     ansible.builtin.apt:
       upgrade: dist 
       update_cache: yes
@@ -21,8 +24,30 @@
   tasks:
 
   - name: install apache2 and php
+    tags: ubuntu,webserver
     ansible.builtin.package:
       name: 
         - "{{ apache_package }}"
         - "{{ php_package }}"
       state: latest
+
+
+- hosts: dbservers
+  become: true
+  tasks:
+
+  - name: install mariadb on ubuntu
+    tags: db, mariadb
+    apt:
+      name: mariadb-server
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: install mariadb on centos
+    tags: centos 
+    ansible.builtin.dnf:
+      name: mariadb-server
+      state: latest 
+
+
+    when: ansible_distribution == "CentOS"
