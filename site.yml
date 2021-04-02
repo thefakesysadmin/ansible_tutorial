@@ -44,7 +44,7 @@
     when: ansible_distribution == "Ubuntu"
 
   - name: install mariadb on centos
-    tags: centos 
+    tags: centos,db 
     ansible.builtin.dnf:
       name: mariadb-server
       state: latest 
