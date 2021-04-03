@@ -1,0 +1,47 @@
+---
+
+- hosts: all  
+  become: true
+  #these tasks should run before any other task
+  pre_tasks:
+  
+  - name: install updates (CentOS)
+    tags: always
+    ansible.builtin.dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: Install updates (Ubuntu)
+    tags: always
+    ansible.builtin.apt:
+      upgrade: dist 
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: all
+  become: true
+  tasks:
+  
+  - name: create simone user
+    tags: always
+    ansible.builtin.user:
+      name: simone
+      groups: root 
+
+  #public key was created using ssh-keygen on mac. The public key was copied into the key parameter for the authorized_key module. This also
+  #prevents the need for using the "--ask-become-pass" in each ansible-playbook command.
+  - name: add ssh key for simone
+    tags: always
+    ansible.posix.authorized_key:
+      user: simone
+      key: "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGmnxFrgFBibHbXsfSCP0+Mknsszs/dAUJ027/+f+60liiScpoBE3BtPM3abYG8WOQA/vNBXP7s2e7oCA38KyTD4AA88ay9GA0wWoTEOo6//Z3Ty9GgmZtyDB0xhxPGtypKKYbKYb4T1+Pju2PA9inKR0bqvwrQWolD2DNe4uNfWjB7Ng== linux academy"
+
+  - name: add sudoers file for simone
+    tags: always
+    ansible.builtin.copy:
+      src: sudoer_simone
+      dest: /etc/sudoers.d/simone
+      owner: root
+      group: root
+      mode: 0440
