@@ -1,7 +1,19 @@
   #public key was created using ssh-keygen on mac. The public key was copied into the key parameter for the authorized_key module. This also
   #prevents the need for using the "--ask-become-pass" in each ansible-playbook command.
   - name: add ssh key for simone
-    tags: always
+    tags: 
+      - always
     ansible.posix.authorized_key:
       user: simone
       key: "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGmnxFrgFBibHbXsfSCP0+Mknsszs/dAUJ027/+f+60liiScpoBE3BtPM3abYG8WOQA/vNBXP7s2e7oCA38KyTD4AA88ay9GA0wWoTEOo6//Z3Ty9GgmZtyDB0xhxPGtypKKYbKYb4T1+Pju2PA9inKR0bqvwrQWolD2DNe4uNfWjB7Ng== linux academy"
+
+  - name: generate sshd_config file from ssh_template_file
+    tags: 
+      - ssh
+    ansible.builtin.template:
+      src: "{{ ssh_template_file }}"
+      dest: /etc/ssh/sshd_config
+      owner: root
+      group: root
+      mode: 0644
+    notify: restart_sshd
